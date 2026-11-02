@@ -10,7 +10,14 @@
 //     Veja o passo a passo no README.md.
 // =============================================================
 
-window.FIREBASE_CONFIG = null;
+window.FIREBASE_CONFIG = {
+  apiKey: "AIzaSyDf7X9GFnPDrutniwepjtRM4cZsqch5hTc",
+  authDomain: "amigos-da-vila-franca.firebaseapp.com",
+  projectId: "amigos-da-vila-franca",
+  storageBucket: "amigos-da-vila-franca.firebasestorage.app",
+  messagingSenderId: "709418759300",
+  appId: "1:709418759300:web:7e395c41ad4da41e77fed1"
+};
 /* Exemplo:
 window.FIREBASE_CONFIG = {
   apiKey: "AIza...",
@@ -31,6 +38,7 @@ window.FIREBASE_CONFIG = {
 //    e coloque os MESMOS e-mails no arquivo firestore.rules (é ele que protege
 //    os dados de verdade, lá no servidor).
 window.ADMIN_EMAILS = [
+"wellanjo900@gmail.com"
   // "seu-email@gmail.com"
 ];
 // b) Modo demonstração (sem Firebase): o painel abre com este PIN.
@@ -41,7 +49,7 @@ window.ADMIN_PIN = "2026";
 // Depois de publicar no GitHub Pages, coloque aqui o link, por exemplo:
 // window.APP_URL = "https://SEU-USUARIO.github.io/amigos-da-vila-franca/";
 // Se ficar vazio, a versão web usa o próprio endereço aberto no navegador.
-window.APP_URL = "";
+window.APP_URL = "https://wellanjo.github.io/amigos-da-vila-franca/";
 
 // Centro inicial do mapa (bairro Vila Franca, Piraquara/PR - aproximado).
 // Ajuste se quiser: abra o Google Maps, clique no bairro e copie latitude/longitude.
