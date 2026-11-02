@@ -1,0 +1,98 @@
+// Regras de segurança do banco de dados (Firebase Firestore).
+// Cada pessoa entra com a conta Google. Todo registro guarda o "dono"
+// (criadoPorUid = id da conta de quem cadastrou).
+// As regras rodam no servidor do Google: mesmo quem mexer no código do app
+// não consegue passar por cima delas.
+//
+// IMPORTANTE: troque "seu-email@gmail.com" pelo e-mail do administrador
+// (o mesmo colocado em ADMIN_EMAILS no config.js), em letras minúsculas.
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    function logado() { return request.auth != null; }
+
+    // Verdadeiro só para quem entrou com uma conta Google da lista de administradores.
+    function ehAdmin() {
+      return logado()
+        && request.auth.token.email_verified == true
+        && request.auth.token.email.lower() in ['seu-email@gmail.com'];
+    }
+
+    // O registro novo precisa estar no nome de quem está gravando.
+    function criaComoEu() { return logado() && request.resource.data.criadoPorUid == request.auth.uid; }
+
+    // Quem cadastrou pode alterar o próprio registro, sem trocar o dono.
+    function donoAlterando() {
+      return logado() && resource.data.criadoPorUid == request.auth.uid
+        && request.resource.data.criadoPorUid == resource.data.criadoPorUid;
+    }
+    function ehDono() { return logado() && resource.data.criadoPorUid == request.auth.uid; }
+
+    // Ajuda da comunidade na ficha do animal: qualquer morador pode marcar
+    // "foi castrado", "foi adotado" ou "precisa de resgate", e nada além disso.
+    function soAcoesRapidas() {
+      return logado() && request.resource.data.diff(resource.data).affectedKeys()
+        .hasOnly(['castrado', 'status', 'atualizadoEm', 'atualizadoPor']);
+    }
+
+    // Cadastro de cada pessoa: só ela mesma e o administrador leem.
+    match /usuarios/{uid} {
+      allow read: if logado() && (request.auth.uid == uid || ehAdmin());
+      allow create, update: if logado() && request.auth.uid == uid;
+      allow delete: if logado() && (request.auth.uid == uid || ehAdmin());
+    }
+
+    // Animais: moradores veem e cadastram; o dono (ou o administrador) edita e apaga.
+    match /animais/{id} {
+      allow read: if logado();
+      allow create: if criaComoEu();
+      allow update: if ehAdmin() || donoAlterando() || soAcoesRapidas();
+      allow delete: if ehAdmin() || ehDono();
+    }
+
+    // Perdidos e achados: só quem anunciou (ou o administrador) edita, marca "voltou pra casa" e apaga.
+    match /perdidos/{id} {
+      allow read: if logado();
+      allow create: if criaComoEu();
+      allow update: if ehAdmin() || donoAlterando();
+      allow delete: if ehAdmin() || ehDono();
+    }
+
+    // Contatos de ONGs e protetores: só o administrador cadastra, edita e apaga
+    // (é o telefone de outra pessoa ou entidade e precisa da autorização dela).
+    match /contatos/{id} {
+      allow read: if logado();
+      allow create, update, delete: if ehAdmin();
+    }
+
+    // Denúncias: qualquer morador denuncia; só o administrador lê e resolve.
+    match /denuncias/{id} {
+      allow create: if criaComoEu();
+      allow read, update, delete: if ehAdmin();
+    }
+
+    // Mural: todos leem; só o administrador publica e apaga.
+    match /mural/{id} {
+      allow read: if logado();
+      allow create, delete: if ehAdmin();
+      allow update: if false;
+    }
+
+    // Jogos: o ranking mostra só "Maria S.". Cada resultado fica na conta de quem jogou.
+    match /quiz/{id}   { allow read: if logado(); allow create: if criaComoEu(); allow update, delete: if ehAdmin(); }
+    match /placar/{id} { allow read: if logado(); allow create: if criaComoEu(); allow update, delete: if ehAdmin(); }
+
+    // Convites: um por conta (o id do documento é o id de quem entrou pelo convite),
+    // e ninguém pode convidar a si mesmo.
+    match /convites/{uid} {
+      allow read: if logado();
+      allow create: if logado() && request.auth.uid == uid && request.resource.data.indicadoPor != uid;
+      allow update, delete: if false;
+    }
+
+    // Registro de acessos e avaliações: cada um grava o seu; SÓ o administrador lê.
+    match /acessos/{id}  { allow create: if criaComoEu(); allow read: if ehAdmin(); allow update, delete: if false; }
+    match /feedback/{id} { allow create: if criaComoEu(); allow read: if ehAdmin(); allow update, delete: if false; }
+  }
+}
