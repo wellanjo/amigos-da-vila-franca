@@ -94,5 +94,8 @@ Abra o link no Chrome do Android, toque nos **⋮** e depois em **Adicionar à t
 ## Privacidade
 O login é feito pelo Google: o app recebe só o nome e o e-mail da conta, nunca a senha. O cadastro (nome, perfil e WhatsApp opcional) só pode ser lido pela própria pessoa e pelo administrador, e pode ser excluído na tela **Meu cadastro**. Os contatos de ONGs/protetores só devem ser cadastrados com autorização deles.
 
-## Licença
-Código livre para fins educacionais e comunitários (MIT). Leaflet © Vladimir Agafonkin (BSD-2). Mapas © colaboradores do OpenStreetMap.
+## Direitos autorais
+© 2026 Wellington de Jesus Moraes. Todos os direitos reservados.
+ O código está público para consulta e avaliação acadêmica, mas não pode ser copiado, modificado ou reutilizado sem autorização do autor.
+
+ Componentes de terceiros, que seguem as próprias licenças: Leaflet © Vladimir Agafonkin (BSD-2), fontes Fredoka e Nunito (SIL Open Font License) e mapas © colaboradores do OpenStreetMap.
