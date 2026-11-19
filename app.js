@@ -298,8 +298,44 @@
     animais.sort((a, b) => (b.criadoEm || "").localeCompare(a.criadoEm || ""));
     perdidos.sort((a, b) => (b.criadoEm || "").localeCompare(a.criadoEm || ""));
     mural.sort((a, b) => (b.criadoEm || "").localeCompare(a.criadoEm || ""));
+    ultimaCarga = Date.now();
     renderInicio();
+    atualizarSeloMural();
   }
+
+  // ---------- selo de "novo" no mural ----------
+  // Guarda neste aparelho a data do último aviso que a pessoa viu. Quando há aviso
+  // mais novo, aparece uma bolinha vermelha com o número no ícone do Mural.
+  let ultimaCarga = 0;
+  function atualizarSeloMural() {
+    const telaAtual = (location.hash.replace("#", "") || "inicio").split("/")[0];
+    const maisNovo = mural.length ? (mural[0].criadoEm || "") : "";
+    let visto = store.get("muralVisto", null);
+    if (visto === null) { // primeira vez neste aparelho: só conta avisos das últimas 2 semanas
+      visto = new Date(Date.now() - 14 * 864e5).toISOString();
+      store.set("muralVisto", visto);
+    }
+    if (telaAtual === "mural" && maisNovo > visto) { visto = maisNovo; store.set("muralVisto", visto); }
+    const novos = mural.filter(m => (m.criadoEm || "") > visto).length;
+    const rotulo = novos ? (novos > 9 ? "9+" : String(novos)) : "";
+    const aviso = novos ? `${novos} ${novos === 1 ? "aviso novo" : "avisos novos"} no mural` : "";
+    $$('a[href="#mural"]').forEach(a => {
+      let selo = a.querySelector(".selo-novo");
+      if (!novos) { if (selo) selo.remove(); a.removeAttribute("data-novos"); return; }
+      if (!selo) {
+        selo = document.createElement("span"); selo.className = "selo-novo";
+        (a.querySelector(".nav-bola") || a.querySelector(".menu-ic") || a.querySelector(".mh-tag") || a).appendChild(selo);
+      }
+      // no card do Início o selo vem escrito ("3 novos"); nos ícones, só o número
+      selo.textContent = selo.parentElement.classList.contains("mh-tag") ? (novos === 1 ? "1 novo" : rotulo + " novos") : rotulo;
+      selo.setAttribute("aria-label", aviso); selo.title = aviso;
+      a.setAttribute("data-novos", novos);
+    });
+  }
+  // Ao voltar para o app (ex.: o celular estava bloqueado), busca avisos novos.
+  document.addEventListener("visibilitychange", () => {
+    if (document.visibilityState === "visible" && usuario && Date.now() - ultimaCarga > 60000) recarregar();
+  });
 
   // ---------- roteamento (troca de telas) ----------
   // A tela aberta vem do endereço depois do "#", por exemplo #mapa ou #ficha/ID.
@@ -332,6 +368,7 @@
     if (nome === "contatos") renderContatos();
     if (nome === "perdidos") renderPerdidos();
     if (nome === "mural") renderMural();
+    atualizarSeloMural();
     Som.entrarTela(nome);
     if (nome === "jogos") renderJogos();
     if (nome === "quiz") iniciarQuiz();

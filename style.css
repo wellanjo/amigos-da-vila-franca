@@ -711,3 +711,13 @@ label.aceite input { width: 1.35rem; height: 1.35rem; flex: none; margin: .1rem 
 .denuncia ul { margin: .5rem 0; padding-left: 1.1rem; }
 .den-n { background: var(--resgate); color: #fff; border-radius: 99px; padding: .1rem .55rem; font-weight: 800; margin-left: .3rem; }
 .dlg h2:focus { outline: none; }
+
+/* ---------- selo de "novo" no mural ---------- */
+.nav-bola, .menu-ic, .mh-tag { position: relative; }
+.selo-novo { position: absolute; top: -.3rem; right: -.35rem; min-width: 1.25rem; height: 1.25rem; padding: 0 .3rem; border-radius: 999px;
+  background: #e53935; color: #fff; font: 800 .72rem/1.25rem var(--fonte-texto, system-ui), sans-serif; text-align: center;
+  box-shadow: 0 0 0 2px #fff; pointer-events: none; }
+.mh-tag .selo-novo { position: static; margin-left: .35rem; box-shadow: none; padding: 0 .5rem; font-size: .7rem; }
+@media (prefers-reduced-motion: no-preference) { .selo-novo { animation: selo-pulsa 1.6s ease-out 2; } }
+@keyframes selo-pulsa { 0% { transform: scale(.6); } 40% { transform: scale(1.15); } 100% { transform: scale(1); } }
+body.contraste .selo-novo { background: #000; box-shadow: 0 0 0 2px #ff0; }
